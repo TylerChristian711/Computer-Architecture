@@ -66,32 +66,55 @@ class CPU:
 
         print()
 
+    def LDI(self):
+        reg_num = self.ram_read(self.pc + 1)
+        value = self.ram_read(self.pc + 2)
+        self.reg[reg_num] = value
+        self.pc += 3
+
+    def HLT(self):
+        self.running = False
+
+
+    def PRN(self):
+        reg_num = self.ram_read(self.pc + 1)
+        print(self.reg[reg_num])
+        self.pc += 2
+
+
+    def MUL(self):
+        reg_num1 = self.ram_read(self.pc + 1)
+        reg_num2 = self.ram_read(self.pc + 2)
+        self.alu("MUL", reg_num1, reg_num2)
+        self.pc += 3
+
+
+    def NOP(self):
+        self.pc += 1
+
+
+    def call_fun(self, n):
+        branch_table = {
+            NOP: self.NOP,
+            HLT: self.HLT,
+            MUL: self.MUL,
+            PRN: self.PRN,
+            LDI: self.LDI
+        }
+
+        f = branch_table[n]
+        if branch_table.get(n) is not None:
+            f()
+        else:
+            print(f'unknow instruction {n} at address {self.pc}')
+            sys.exit(1)
+
+
     def run(self):
         """Run the CPU."""
         while self.running:
             ir = self.ram_read(self.pc)
-            if ir == LDI:
-                reg_num = self.ram_read(self.pc + 1)
-                value = self.ram_read(self.pc + 2)
-                self.reg[reg_num] = value
-                self.pc += 3
-            elif ir == HLT:
-                self.running = False
-            elif ir == PRN:
-                reg_num = self.ram_read(self.pc + 1)
-                print(self.reg[reg_num])
-                self.pc += 2
-            elif ir == MUL:
-                reg_num1 = self.ram_read(self.pc + 1)
-                reg_num2 = self.ram_read(self.pc + 2)
-                self.alu("MUL", reg_num1, reg_num2)
-                self.pc += 3
-            elif ir == NOP:
-                self.pc += 1
-                continue
-            else:
-                print(f'unknow instruction {ir} at address {self.pc}')
-                sys.exit(1)
+            self.call_fun(ir)
 
 
     def ram_read(self, address):
