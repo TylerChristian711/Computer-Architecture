@@ -5,6 +5,7 @@ import sys
 LDI = 0b10000010
 PRN = 0b01000111
 HLT = 0b00000001
+NOP = 0b00000000
 
 
 class CPU:
@@ -77,6 +78,9 @@ class CPU:
                 reg_num = self.ram_read(self.pc + 1)
                 print(self.ram[reg_num])
                 self.pc += 2
+            elif ir == NOP:
+                self.pc += 1
+                continue
             else:
                 print(f'unknow instruction {ir} at address {self.pc}')
                 sys.exit(1)
